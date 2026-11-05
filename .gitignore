@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Playwright output
+playwright/report/
+playwright/test-results/
+playwright/.cache/
+
+# Cypress output
+cypress/downloads/
+cypress/screenshots/
+cypress/videos/
+
+# Python
+__pycache__/
+.pytest_cache/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local Claude app config
+cypress/.claude/
+
+# Stray Playwright output in the project root
+/test-results/
