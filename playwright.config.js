@@ -5,7 +5,11 @@ module.exports = defineConfig({
   testDir: './playwright/tests',
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
-  reporter: [['html', { outputFolder: 'playwright/report', open: 'never' }], ['list']],
+  reporter: [
+    ['html', { outputFolder: 'playwright/report', open: 'never' }],
+    ['junit', { outputFile: 'playwright/junit/results.xml' }], // read by Jenkins
+    ['list'],
+  ],
   outputDir: 'playwright/test-results',
   use: {
     trace: 'on-first-retry',
