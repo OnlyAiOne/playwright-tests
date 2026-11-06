@@ -179,7 +179,8 @@
     "pw:ui": "playwright test --ui",
     "pw:report": "playwright show-report playwright/report",
     "pw:codegen": "playwright codegen",
-    "jira:report": "node scripts/jira-report.js"
+    "jira:report": "node scripts/jira-report.js",
+    "jira:check": "node scripts/check-jira-sync.js"
   },
   "author": "",
   "license": "ISC",

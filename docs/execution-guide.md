@@ -40,6 +40,7 @@ $env:CYPRESS_INSTALL_BINARY=0
 | `npm run pw:report` | Open the HTML report of the last local run |
 | `npm run pw:codegen` | Record clicks in a browser and generate test code |
 | `npm run jira:report` | Preview the Jira comments for the last run (dry run unless Jira credentials are set) |
+| `npm run jira:check` | Check that every story's Jira results comment shows the latest pipeline run on `main` (needs Jira credentials) |
 
 Useful variations:
 
@@ -170,6 +171,29 @@ $env:JIRA_BASE_URL="https://ccbchennai.atlassian.net"; $env:JIRA_EMAIL="<your Ji
 | `returned 401` | Email and token do not match, or the token expired |
 | `returned 403` | The account lacks permission in OWA |
 | `returned 404` | The story key does not exist |
+
+**Checking that Jira shows the latest run:** `npm run jira:check` (`scripts/check-jira-sync.js`) finds the latest completed pipeline run on `main` that posts to Jira, reads each story's results comment, and compares the comment's commit and run link with that run. It needs the same Jira email and token as the pipeline, set for that terminal only:
+
+```powershell
+$env:JIRA_EMAIL="<your Jira email>"; $env:JIRA_API_TOKEN="<your token>"; npm run jira:check
+```
+
+```
+Latest run on main: #12 · success · commit 683575a
+Story    In sync  Commit   Comment updated                Result in Jira
+OWA-31   yes      683575a  2026-11-06T21:38:47.925+0530   PASSED: 2 of 2 tests
+OWA-35   NO       6ba1dad  2026-11-06T18:56:54.917+0530   PASSED with 1 known defect
+```
+
+| Result | Meaning | Exit code |
+|---|---|---|
+| `All N stories show run #…` | Every story is up to date | 0 |
+| `NO` on a story | Its comment shows an older run: open that run's "Post results to Jira" step | 1 |
+| `no results comment` | The pipeline has never posted to that story (a new story, or a renamed key) | 1 |
+| `ERROR … 401 / 403` | Wrong or expired token, or no permission in OWA | 1 |
+| `Set JIRA_EMAIL and JIRA_API_TOKEN first` | Credentials not set in this terminal | 2 |
+
+Story keys are read from the test titles in `playwright/tests/`, so a new story is checked as soon as its test exists. The script only reads; it never changes Jira.
 
 ## 6. Test execution
 
