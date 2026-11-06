@@ -1,3 +1,19 @@
+// ---------------------------------------------------------------------------
+// Home page tests
+//
+// Purpose:    Checks the home page content, main menu, contact details and service tabs.
+// Stories:    OWA-28 Home page shows key content (4 tests)
+//             OWA-29 Main navigation menu works (3 tests)
+//             OWA-30 Service tabs switch content (1 test)
+// Pages:      https://onlypps.com/ (BASE_URL)
+// Locators:   playwright/pages/home.page.js, playwright/pages/site-header.js
+// Run:        npx playwright test playwright/tests/first.spec.js
+//             npx playwright test -g "OWA-29"   (one story)
+// Notes:      The email and phone links appear more than once, not all visible; the header
+//             file picks the visible one.
+//             The enquiry form is only checked for its fields, never filled or submitted.
+// ---------------------------------------------------------------------------
+
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');

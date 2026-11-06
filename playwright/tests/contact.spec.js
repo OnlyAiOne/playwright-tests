@@ -1,3 +1,18 @@
+// ---------------------------------------------------------------------------
+// Contact page tests
+//
+// Purpose:    Checks the contact page and its enquiry form: filling it with sample data
+//             and the browser's own validation of required fields and email format.
+// Stories:    OWA-31 Contact form accepts a complete enquiry (2 tests)
+//             OWA-32 Contact form validates required fields and email (2 tests)
+// Pages:      https://onlypps.com/contact.php
+// Locators:   playwright/pages/contact.page.js
+// Test data:  sampleData below (fictional); upload file playwright/fixtures/sample-resume.txt
+// Run:        npx playwright test playwright/tests/contact.spec.js
+// Safety:     beforeEach blocks every POST to contact.php, so no real enquiry is ever sent.
+//             Do not remove that route.
+// ---------------------------------------------------------------------------
+
 const path = require('path');
 const { test, expect } = require('@playwright/test');
 

@@ -1,3 +1,17 @@
+// ---------------------------------------------------------------------------
+// About page tests
+//
+// Purpose:    Checks the About page title, headings, animated stats counters,
+//             lower sections and the way back to the home page.
+// Stories:    OWA-33 About (5 tests)
+// Pages:      https://onlypps.com/about.html
+// Locators:   playwright/pages/about.page.js, playwright/pages/site-header.js
+// Run:        npx playwright test playwright/tests/about.spec.js
+// Notes:      Stats start at 0 and count up only when scrolled into view, so the test
+//             scrolls first and waits up to 15 seconds for the final values.
+//             Lower sections fade in on scroll; each is scrolled into view before checking.
+// ---------------------------------------------------------------------------
+
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');

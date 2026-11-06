@@ -1,3 +1,21 @@
+// ---------------------------------------------------------------------------
+// Industries and Resources tests
+//
+// Purpose:    Checks the Industries page and menu, and the four Resources pages:
+//             Blog, HR Guides, HR Compliance Checklist and FAQ.
+// Stories:    OWA-35 Industries and Resources pages (12 tests)
+// Pages:      https://onlypps.com/industry.html, blog.html, HR-guide.html,
+//             hr-compliance.html, faq.html
+// Locators:   playwright/pages/industries.page.js, playwright/pages/resources.page.js,
+//             playwright/pages/site-header.js
+// Run:        npx playwright test playwright/tests/industries-resources.spec.js
+// Known defect: the Industries page title is copied from Accounting Services. Its test is
+//             marked test.fail() so builds stay green; when the site is fixed it reports an
+//             unexpected pass, and the test.fail() line must be removed.
+// Notes:      Industries menu items sit in a closed dropdown, so their links are checked
+//             rather than clicked. The FAQ questions fade in on scroll.
+// ---------------------------------------------------------------------------
+
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');

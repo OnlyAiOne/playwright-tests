@@ -1,3 +1,18 @@
+// ---------------------------------------------------------------------------
+// Services tests
+//
+// Purpose:    Checks the Services page, its links to all 14 service pages, that each
+//             service page loads with a matching title, the Payroll Outsourcing contact
+//             button, and "View All Services" in the menu.
+// Stories:    OWA-34 Service (5 tests)
+// Pages:      https://onlypps.com/service.html, the 14 service pages listed in `services`
+// Locators:   playwright/pages/services.page.js, playwright/pages/site-header.js
+// Run:        npx playwright test playwright/tests/services.spec.js
+// Notes:      The 14 service pages are fetched with the request API (no browser), which
+//             keeps that test fast. Add a new service to the `services` list.
+//             "View All Services" is inside the Services menu, which opens on hover.
+// ---------------------------------------------------------------------------
+
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');
