@@ -177,13 +177,40 @@ $env:JIRA_BASE_URL="https://ccbchennai.atlassian.net"; $env:JIRA_EMAIL="<your Ji
 
 1. The story exists in OWA with numbered acceptance criteria.
 2. Add the test to the spec file for that area of the site, or a new `*.spec.js` in `playwright/tests/`.
-3. Start its title with the key: `test('OWA-40: …', …)`.
-4. Run it locally with `npx playwright test -g "OWA-40" --headed` until it passes.
-5. Commit and push. The next pipeline run posts its result to OWA-40.
+3. Add any new locators to that page's file in `playwright/pages/` (a new page gets a new file there, listed in `playwright/pages/index.js`).
+4. Start its title with the key: `test('OWA-40: …', …)`.
+5. Run it locally with `npx playwright test -g "OWA-40" --headed` until it passes.
+6. Commit and push. The next pipeline run posts its result to OWA-40.
+
+**Reusable locators (`playwright/pages/`)**
+
+Test scripts never write selectors. Every locator lives in a page file and the tests use it by name:
+
+```javascript
+const { contactPage } = require('../pages');
+
+await page.goto(BASE_URL + contactPage.path);
+const contact = contactPage(page);
+await contact.nameInput.fill('Test User');
+await expect(contact.sendButton).toBeVisible();
+```
+
+| File | Locators for |
+|---|---|
+| `site-header.js` | Main menu links, Services / Resources / Industries dropdowns, phone menu button, header email and phone |
+| `page-basics.js` | Anything on every page: `html`, meta description, images, links, a heading by name |
+| `home.page.js` | Welcome banner, services heading, service tabs, enquiry form fields |
+| `contact.page.js` | Heading, Send button, the contact form and its six fields |
+| `about.page.js` | Headings, stat labels and values, fade-in sections |
+| `services.page.js` | Services headings and service links; `payrollOutsourcing` for that service page |
+| `industries.page.js` | Headings and industry cards |
+| `resources.page.js` | Blog, HR Guides, HR Compliance Checklist and FAQ; their addresses in `paths` |
+
+When the site changes a label or layout, fix the locator once in its page file; every test that uses it follows.
 
 **Conventions in the existing tests:**
 
-- Find elements as a visitor does: `getByRole`, `getByText`, `getByPlaceholder`.
+- Find elements as a visitor does: `getByRole`, `getByText`, `getByPlaceholder`, written in the page files.
 - Many sections fade in when scrolled to; scroll them into view (`scrollIntoViewIfNeeded()`) before checking them.
 - Never submit a real form. `contact.spec.js` blocks POST requests to `contact.php`.
 - A known site defect stays as a test marked `test.fail()` with a comment, so it is recorded but does not turn builds red. When the site is fixed, that test reports an unexpected pass: delete the `test.fail()` line.

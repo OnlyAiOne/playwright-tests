@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');
+const { industriesPage, resourcesPage, siteHeader } = require('../pages');
 
 const industries = [
   'IT & ITES',
@@ -16,10 +17,10 @@ const industries = [
 
 // Menu text, page, heading on the page, and a word the page title must contain
 const resources = [
-  ['Blog', 'blog.html', 'Latest Insights & Trends in HR & Staffing', /Blog/],
-  ['HR Guides', 'HR-guide.html', 'Essential HR & Staffing Insights for Businesses', /HR Guides/],
-  ['HR Compliance Checklist', 'hr-compliance.html', 'HR Compliance Checklist for Businesses in Chennai', /HR Compliance Checklist/],
-  ['FAQ', 'faq.html', 'HR Consultancy & Staffing FAQs in Chennai', /FAQ/],
+  ['Blog', resourcesPage.paths.blog, 'Latest Insights & Trends in HR & Staffing', /Blog/],
+  ['HR Guides', resourcesPage.paths.hrGuides, 'Essential HR & Staffing Insights for Businesses', /HR Guides/],
+  ['HR Compliance Checklist', resourcesPage.paths.hrCompliance, 'HR Compliance Checklist for Businesses in Chennai', /HR Compliance Checklist/],
+  ['FAQ', resourcesPage.paths.faq, 'HR Consultancy & Staffing FAQs in Chennai', /FAQ/],
 ];
 
 test.describe('Only Peopleplus Solution - Industries', () => {
@@ -27,18 +28,20 @@ test.describe('Only Peopleplus Solution - Industries', () => {
   test.describe.configure({ timeout: 60000 });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto(BASE_URL + 'industry.html', { waitUntil: 'domcontentloaded' });
+    await page.goto(BASE_URL + industriesPage.path, { waitUntil: 'domcontentloaded' });
   });
 
   test('OWA-35: shows the Industries banner and headings', async ({ page }) => {
+    const industriesView = industriesPage(page);
     for (const name of ['Industries', 'Expert HR Solutions for Every Industry', 'Industries We Serve']) {
-      await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+      await expect(industriesView.heading(name)).toBeVisible();
     }
   });
 
   test('OWA-35: lists all the industries served', async ({ page }) => {
+    const industriesView = industriesPage(page);
     for (const name of industries) {
-      await expect(page.getByRole('heading', { name, exact: true }).first()).toBeAttached();
+      await expect(industriesView.industry(name)).toBeAttached();
     }
   });
 
@@ -50,10 +53,10 @@ test.describe('Only Peopleplus Solution - Industries', () => {
   });
 
   test('OWA-35: every Industries menu item links to the Industries page', async ({ page }) => {
+    const header = siteHeader(page);
     // These links sit in a closed dropdown, so check their targets rather than their visibility
     for (const name of ['IT & Software', 'Manufacturing', 'Healthcare', 'Retail', 'Startups']) {
-      const link = page.locator('a.dropdown-item').filter({ hasText: new RegExp(`^\\s*${name}\\s*$`) });
-      await expect(link.first()).toHaveAttribute('href', 'industry.html');
+      await expect(header.dropdownItem(name)).toHaveAttribute('href', 'industry.html');
     }
   });
 });
@@ -63,11 +66,11 @@ test.describe('Only Peopleplus Solution - Resources', () => {
 
   test('OWA-35: Resources menu lists all resource pages', async ({ page }) => {
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
-    await page.locator('a.dropdown-toggle', { hasText: 'Resources' }).first().click();
+    const header = siteHeader(page);
+    await header.resourcesMenu.click();
     for (const [name, href] of resources) {
-      const link = page.locator('a.dropdown-item').filter({ hasText: new RegExp(`^\\s*${name}\\s*$`) }).first();
-      await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute('href', href);
+      await expect(header.dropdownItem(name)).toBeVisible();
+      await expect(header.dropdownItem(name)).toHaveAttribute('href', href);
     }
   });
 
@@ -76,34 +79,34 @@ test.describe('Only Peopleplus Solution - Resources', () => {
       const response = await page.goto(BASE_URL + href, { waitUntil: 'domcontentloaded' });
       expect(response.status()).toBe(200);
       await expect(page).toHaveTitle(title);
-      await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+      await expect(resourcesPage(page).heading(heading)).toBeVisible();
     });
   }
 
   test('OWA-35: Blog shows at least one article', async ({ page }) => {
-    await page.goto(BASE_URL + 'blog.html', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('heading', { name: 'Top Recruitment Trends to Watch in 2026' })).toBeVisible();
+    await page.goto(BASE_URL + resourcesPage.paths.blog, { waitUntil: 'domcontentloaded' });
+    await expect(resourcesPage(page).blogArticle('Top Recruitment Trends to Watch in 2026')).toBeVisible();
   });
 
   test('OWA-35: HR Compliance Checklist links to the Contact page', async ({ page }) => {
-    await page.goto(BASE_URL + 'hr-compliance.html', { waitUntil: 'domcontentloaded' });
+    await page.goto(BASE_URL + resourcesPage.paths.hrCompliance, { waitUntil: 'domcontentloaded' });
+    const button = resourcesPage(page).complianceContactButton;
     // The button fades in (hidden until scrolled into view)
-    const button = page.locator('a', { hasText: 'Get HR Compliance Consultation' });
     await button.scrollIntoViewIfNeeded();
     await expect(button).toBeVisible();
     await expect(button).toHaveAttribute('href', 'contact.php');
   });
 
   test('OWA-35: FAQ answers start collapsed and open on click', async ({ page }) => {
-    await page.goto(BASE_URL + 'faq.html', { waitUntil: 'domcontentloaded' });
-    const items = page.locator('.accordion-item');
-    await expect(items).toHaveCount(5);
+    await page.goto(BASE_URL + resourcesPage.paths.faq, { waitUntil: 'domcontentloaded' });
+    const faq = resourcesPage(page);
+    await expect(faq.faqItems).toHaveCount(5);
 
-    const first = items.first();
-    const answer = first.locator('.accordion-collapse');
+    const first = faq.faqItems.first();
+    const answer = faq.faqAnswer(first);
     await expect(answer).toBeHidden();
     // The questions fade in (hidden until scrolled into view)
-    const question = first.locator('.accordion-button');
+    const question = faq.faqQuestion(first);
     await question.scrollIntoViewIfNeeded();
     await expect(question).toBeVisible();
     await question.click();

@@ -117,14 +117,14 @@ flowchart TB
   classDef temp stroke-dasharray: 4 3
 ```
 
-Planned items (pull requests and code review, page objects, choosing which stories to run) are not drawn. Their status is in the table below.
+Planned items (pull requests and code review, choosing which stories to run) are not drawn. Their status is in the table below.
 
 ### The seven layers
 
 | # | Layer | What it does | In place today | Partial or planned |
 |---|---|---|---|---|
 | 1 | Business and test management | The need is written in Jira as epic OWA-27 with 8 stories and acceptance criteria. | Epic, stories, criteria, 34 scenarios | Choosing which stories to run (planned) |
-| 2 | Automation development | Scenarios become Playwright tests, written in PyCharm. | JavaScript + Playwright Test, `playwright.config.js` | Test data lives inside test files (partial); page objects and helpers (planned) |
+| 2 | Automation development | Scenarios become Playwright tests, written in PyCharm. | JavaScript + Playwright Test, `playwright.config.js` | Test data lives inside test files (partial); reusable locators in `playwright/pages/` (in place); shared actions and helpers (planned) |
 | 3 | Source code management | All test code is versioned in GitHub. | Repository, `main` branch | Feature branch, pull request, code review (planned) |
 | 4 | CI/CD execution | Every push starts a clean run: install, run, collect, report. | GitHub Actions and Jenkins, retries and failure evidence | Environments: production only (partial) |
 | 5 | Application testing | A real Chrome browser uses the live site as a visitor would. | Navigation, business journeys, assertions | Login: not applicable on the public site |
@@ -145,7 +145,8 @@ Planned items (pull requests and code review, page objects, choosing which stori
 | Jenkins pipeline | `Jenkinsfile` | Same suite on the local Jenkins; checks GitHub every 5 minutes and runs weekdays at 9 AM; publishes JUnit and HTML results. | Implemented (laptop only) |
 | Jira reporter | `scripts/jira-report.js` | Reads `results.json`, groups tests by story key, updates one results comment per story and attaches failure screenshots. | Implemented |
 | Jira project | ccbchennai.atlassian.net, space OWA | Epic `OWA-27`, stories `OWA-28` to `OWA-35` with acceptance criteria in the description. | Implemented |
-| Page objects, helpers | none | Shared classes for the menu, forms and pages. | Recommended |
+| Reusable locators | `playwright/pages/` | One file per page (home, contact, about, services, industries, resources) plus the shared site header and page basics. Test scripts use locators by name and contain no selectors. | Implemented |
+| Shared actions, helpers | none | Reusable steps such as "fill the contact form" or "reveal a fade-in section". | Recommended |
 
 ## 5. Integration points
 
@@ -202,7 +203,7 @@ Planned items (pull requests and code review, page objects, choosing which stori
 - Jira keeps only the latest result per story, and its link to the CI report stops working after 30 days.
 - Jenkins runs on one laptop and does not post to Jira.
 - Only Chromium and only the live site are tested; there is no staging environment.
-- No page objects or shared helpers; locators and the fade-in handling are repeated across tests.
+- Locators are shared through `playwright/pages/`, but actions are not: steps such as revealing fade-in content are still repeated across tests.
 - Traces exist only when CI retries a failure; local failures never have one.
 - The Industries page title is a known defect: its test is marked `test.fail()` until the site is fixed.
 - The repository also holds Cypress examples and practice scripts that are not part of the framework.
@@ -215,6 +216,6 @@ All Recommended.
 |---|---|
 | Now | Raise the Industries title as a Jira Bug; protect `main` and use pull requests with one reviewer; create a dedicated Jira automation account. |
 | Next | Upload `results.json` and the JUnit XML as a 90-day artifact; publish each report to a permanent link; `trace: 'retain-on-failure'`; a nightly scheduled run with failure alerts; a story-key input to run one story. |
-| Later | Page objects and separate test data files; Firefox, WebKit and a phone viewport; a staging environment (the tests already accept its address through `BASE_URL`); Jenkins on a shared server or retired; a quality dashboard; move the Cypress examples out of this repository. |
+| Later | Shared actions in the page files and separate test data files; Firefox, WebKit and a phone viewport; a staging environment (the tests already accept its address through `BASE_URL`); Jenkins on a shared server or retired; a quality dashboard; move the Cypress examples out of this repository. |
 
 Related documents: [Automation Execution Guide](execution-guide.md) · [Business Demonstration Guide](demo-guide.md)

@@ -1,7 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
 const { BASE_URL } = require('../env');
-const SERVICES_URL = BASE_URL + 'service.html';
+const { servicesPage, siteHeader } = require('../pages');
+
+const payrollPage = servicesPage.payrollOutsourcing;
 
 // Link text, page, and a word the page title must contain
 const services = [
@@ -26,21 +28,23 @@ test.describe('Only Peopleplus Solution - Services', () => {
   test.describe.configure({ timeout: 60000 });
 
   test('OWA-34: loads the Services page with its headings', async ({ page }) => {
-    await page.goto(SERVICES_URL, { waitUntil: 'domcontentloaded' });
+    await page.goto(BASE_URL + servicesPage.path, { waitUntil: 'domcontentloaded' });
+    const servicesView = servicesPage(page);
     await expect(page).toHaveTitle(/Service/);
     for (const name of [
       'Services',
       'End-to-End HR, Payroll & Compliance Solutions',
       'Payroll & Statutory Compliance Services',
     ]) {
-      await expect(page.getByRole('heading', { name, exact: true })).toBeVisible();
+      await expect(servicesView.heading(name)).toBeVisible();
     }
   });
 
   test('OWA-34: links to all 14 services', async ({ page }) => {
-    await page.goto(SERVICES_URL, { waitUntil: 'domcontentloaded' });
+    await page.goto(BASE_URL + servicesPage.path, { waitUntil: 'domcontentloaded' });
+    const servicesView = servicesPage(page);
     for (const [name, href] of services) {
-      await expect(page.locator(`a[href="${href}"]`, { hasText: name }).first()).toBeAttached();
+      await expect(servicesView.serviceLink(name, href)).toBeAttached();
     }
   });
 
@@ -54,24 +58,22 @@ test.describe('Only Peopleplus Solution - Services', () => {
   });
 
   test('OWA-34: Payroll Outsourcing page links to the Contact page', async ({ page }) => {
-    await page.goto(BASE_URL + 'payroll-outsourcing.html', { waitUntil: 'domcontentloaded' });
-    await expect(
-      page.getByRole('heading', { name: 'Professional Payroll Outsourcing Services in Chennai' })
-    ).toBeVisible();
+    await page.goto(BASE_URL + payrollPage.path, { waitUntil: 'domcontentloaded' });
+    const payroll = payrollPage(page);
+    await expect(payroll.heading).toBeVisible();
     // The button fades in (hidden until scrolled into view)
-    const button = page.locator('a', { hasText: 'Get Payroll Outsourcing Assistance' });
-    await button.scrollIntoViewIfNeeded();
-    await expect(button).toBeVisible();
-    await expect(button).toHaveAttribute('href', 'contact.php');
+    await payroll.contactButton.scrollIntoViewIfNeeded();
+    await expect(payroll.contactButton).toBeVisible();
+    await expect(payroll.contactButton).toHaveAttribute('href', 'contact.php');
   });
 
   test('OWA-34: View All Services in the Services menu opens the Services page', async ({ page }) => {
     await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
+    const header = siteHeader(page);
     // The link sits in the Services mega menu, which opens on hover
-    await page.locator('a.nav-link', { hasText: 'Services' }).first().hover();
-    const link = page.locator('a', { hasText: 'View All Services' }).first();
-    await expect(link).toBeVisible();
-    await link.click();
+    await header.servicesMenu.hover();
+    await expect(header.viewAllServicesLink).toBeVisible();
+    await header.viewAllServicesLink.click();
     await expect(page).toHaveURL(/service\.html/);
   });
 });
