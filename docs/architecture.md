@@ -1,58 +1,99 @@
 # Automation Architecture
 
-How the onlypps.com test automation works end to end, from a business need written in Jira to proof that the website behaves as expected.
+How the onlypps.com test automation works end to end, from a business need written in Jira to proof that the website behaves as expected. There are two views: a business view for stakeholders and a technical view for the team. Both follow the same seven layers.
 
-Read the diagram from top to bottom. A business need becomes a Jira story, the story becomes automated tests, the tests are stored in GitHub, the pipeline runs them against the live website, and the results flow into reports and back to the same Jira story.
+## Business view
 
-**Key:** solid border = in place today · dotted border = partly in place · dashed border = planned
+What happens, in which order, grouped into development, execution and reporting. The dotted line is the feedback loop: every result returns to the Jira story it came from.
 
 ```mermaid
 flowchart TB
-  subgraph BUSINESS["1 · Business and test management · Jira"]
+  subgraph DEV["DEVELOPMENT"]
     direction LR
-    BR["Business requirement<br/>onlypps.com website"] --> EP["Jira epic<br/>OWA-27"] --> ST["Jira stories<br/>OWA-28 to OWA-35"] --> AC["Acceptance criteria<br/>Given · When · Then"] --> TS["Test scenarios<br/>34 tests"] -.-> SEL["Choose stories to run<br/>(planned)"]:::plan
+    B1["Business requirements<br/>what the website must do"] --> B2["Jira story and<br/>acceptance criteria<br/>OWA-28 to OWA-35"] --> B3["Automation architect /<br/>QA engineer<br/>turns each criterion into a test"] --> B4["PyCharm + JavaScript +<br/>Playwright Test<br/>in place of Python + Pytest"] --> B5["GitHub repository<br/>OnlyAiOne/playwright-tests"]
   end
 
-  subgraph DEV["2 · Automation development · PyCharm"]
+  subgraph EXE["EXECUTION"]
     direction LR
-    CODE["JavaScript + Playwright Test<br/>in place of Python + Pytest"] --- CFG["Configuration"] --- DATA["Test data<br/>(partial)"]:::part -.- POM["Page objects<br/>(planned)"]:::plan -.- UTIL["Reusable helpers<br/>(planned)"]:::plan
+    B6["GitHub Actions CI/CD<br/>starts on every push"] --> B7["OnlyPPS application<br/>opened in a real<br/>Chrome browser"] --> B8["Test execution<br/>and validation<br/>results are generated here"]
   end
 
-  subgraph SCM["3 · Source code management · GitHub"]
+  subgraph REP["REPORTING"]
     direction LR
-    FB["Feature branch<br/>(planned)"]:::plan -.-> PR["Pull request<br/>(planned)"]:::plan -.-> CR["Code review<br/>(planned)"]:::plan -.-> MAIN["Main branch<br/>today: changes pushed here directly"]
+    B9[("Results, logs, screenshots,<br/>traces, HTML reports<br/>stored in GitHub")] --> B10["Jira story update<br/>results comment and<br/>failure screenshots"] --> B11["Business team<br/>reporting"]
   end
 
-  subgraph CICD["4 · CI/CD execution · GitHub Actions and Jenkins"]
-    direction LR
-    TRIG["Trigger<br/>every push"] --> DEP["Install<br/>dependencies"] --> BRW["Install<br/>browser"] --> ENV["Environment<br/>(partial)"]:::part --> RUN["Run tests"] --> COL["Collect results"] --> REP["Build reports"] --> FAIL["Failure handling<br/>retry · screenshot · trace"]
-  end
-
-  subgraph APP["5 · Application testing · live website"]
-    direction LR
-    BROW["Real Chrome<br/>browser"] --> SITE["OnlyPPS<br/>website"] --> NAV["Navigate pages<br/>no login needed"] --> WF["Business journeys<br/>forms · services"] --> AS["Assertions"] --> VAL["Behaviour<br/>validated"]
-  end
-
-  subgraph EVIDENCE["6 · Reporting and evidence"]
-    direction LR
-    SUM["Summary<br/>pass · fail · skip · time"] --- FD["Failure<br/>details"] --- SS["Screenshots"] --- TR["Traces<br/>(partial)"]:::part --- HTML["HTML<br/>report"] --- LOG["CI/CD<br/>logs"]
-  end
-
-  subgraph JIRA["7 · Jira integration · results go back to the story in layer 1"]
-    direction LR
-    TRC["Traceability<br/>story key in each test"] --> CAP["Capture status<br/>per story"] --> UPD["Update story comment<br/>(built, needs Jira token)"]:::part --> SUMJ["Add summary<br/>and failure details"]:::part --> ATT["Attach failure screenshots<br/>(built, needs Jira token)"]:::part -.-> READ["Read story, run its tests<br/>(planned)"]:::plan
-  end
-
-  BUSINESS ==>|each scenario becomes a test| DEV
-  DEV ==>|code is saved and versioned| SCM
-  SCM ==>|a change starts the pipeline| CICD
-  CICD ==>|tests drive the browser| APP
-  APP ==>|results and evidence| EVIDENCE
-  EVIDENCE ==>|results mapped by story key| JIRA
-
-  classDef plan stroke-dasharray: 6 4
-  classDef part stroke-dasharray: 2 3
+  B5 ==>|a change starts the pipeline| B6
+  B8 ==>|results are generated and stored| B9
+  B2 -. "⬆ FEEDBACK LOOP ⬆<br/>the result returns to the same Jira story" .- B10
 ```
+
+## Technical view
+
+The real components in each of the seven layers. Arrows marked "generates" show where results are created; cylinders show where results are stored, and dashed cylinders are temporary (deleted when the CI runner ends, or overwritten on the next local run).
+
+```mermaid
+flowchart TB
+  subgraph DEVELOPMENT["DEVELOPMENT"]
+    subgraph L1["1 · Jira Cloud · OWA space"]
+      STORY["Story OWA-28 … OWA-35<br/>description + acceptance criteria"]
+    end
+    subgraph L2["2 · Engineer workstation · PyCharm"]
+      SPECS["Tests + playwright.config.js<br/>JavaScript · Playwright Test 1.64<br/>test names start with the OWA key"]
+      LOCALOUT[("Local run: npm run pw:test<br/>report + screenshots on this PC only<br/>overwritten each run")]:::temp
+    end
+    subgraph L3["3 · GitHub · OnlyAiOne/playwright-tests · public"]
+      MAIN[("main branch<br/>source code · permanent")]
+    end
+  end
+
+  subgraph EXECUTION["EXECUTION"]
+    subgraph L4["4 · GitHub Actions runner · temporary Ubuntu machine"]
+      TRIG["Trigger<br/>push or pull request to main"] --> SETUP["checkout · Node 20 · npm ci"] --> BRW["playwright install chromium"] --> RUN["npx playwright test<br/>CI=true · 2 retries · 4 in parallel"]
+      RUN -->|generates| RAW[("results.json · JUnit XML · test-results/<br/>deleted when the runner ends")]:::temp
+      RUN -->|generates| HTML["HTML report<br/>with failure screenshots + traces"]
+      RAW --> JR["scripts/jira-report.js<br/>groups results by OWA key"]
+    end
+    subgraph L5["5 · Application under test"]
+      CHROME["Chromium browser"] --> SITE["onlypps.com<br/>live site · no login"]
+    end
+    JENKINS["Jenkins on the laptop<br/>same suite · checks GitHub every 5 min"]
+  end
+
+  subgraph REPORTING["REPORTING"]
+    subgraph L6["6 · Result storage"]
+      LOGS[("Actions run logs<br/>GitHub default 90 days")]
+      ART[("Artifact playwright-report<br/>30 days")]
+      JSTORE[("Jenkins builds, reports, archives<br/>last 20 · laptop only")]
+    end
+    subgraph L7["7 · Jira feedback"]
+      API["Jira REST API<br/>secrets JIRA_EMAIL + JIRA_API_TOKEN"]
+      CMT[("Results comment on the story<br/>updated every run")]
+      ATT[("Failure screenshots<br/>attached to the story")]
+    end
+    BIZ["Business team<br/>reads the story · opens the report"]
+  end
+
+  STORY -->|criteria become tests| SPECS
+  SPECS ==>|git push| MAIN
+  SPECS -->|generates| LOCALOUT
+  MAIN ==>|push event| TRIG
+  MAIN -->|polled| JENKINS
+  RUN ==>|drives| CHROME
+  RUN -->|step output| LOGS
+  HTML -->|upload-artifact| ART
+  JENKINS -->|stores| JSTORE
+  JR ==>|on main only| API
+  API --> CMT
+  API --> ATT
+  CMT --> BIZ
+  ART -->|link in the comment| BIZ
+  STORY -. "⬆ FEEDBACK LOOP ⬆<br/>results land on the same story" .- CMT
+
+  classDef temp stroke-dasharray: 4 3
+```
+
+Planned items (pull requests and code review, page objects, choosing which stories to run) are not drawn. Their status is in the table below.
 
 ## The seven layers
 
