@@ -138,7 +138,8 @@ Planned items (pull requests and code review, page objects, choosing which stori
 | Test framework | `@playwright/test` 1.64.1 in `package.json` | Runs the tests in a real browser and checks the results. JavaScript on Node.js 20, chosen in place of Python and Pytest. | Implemented |
 | Test specs | `playwright/tests/` | 5 files, 34 tests: `first.spec.js` (8), `contact.spec.js` (4), `about.spec.js` (5), `services.spec.js` (5), `industries-resources.spec.js` (12). Each title starts with its Jira key. | Implemented |
 | Test data | Inside the spec files; `playwright/fixtures/sample-resume.txt` | Sample contact details, expected page lists, and the file the contact test uploads. | Implemented (inside code) |
-| Configuration | `playwright.config.js` | Test folder, parallel runs, retries (2 in CI, 0 locally), reporters, output folder, trace on first retry, screenshot on failure, Chromium project. | Implemented |
+| Configuration | `playwright.config.js` | Test folder, base URL, parallel runs, retries (2 in CI, 0 locally), reporters, output folder, trace on first retry, screenshot on failure, Chromium project. | Implemented |
+| Base URL | `playwright/env.js` | `PROD_BASE_URL` (`https://onlypps.com/`) defined once; `BASE_URL` overrides it from the environment. Used by the config and every spec. | Implemented |
 | Reporters | `playwright.config.js` | HTML report `playwright/report/`, JUnit `playwright/junit/results.xml`, JSON `playwright/results.json`, console list. | Implemented |
 | GitHub Actions workflow | `.github/workflows/playwright.yml` | On push or pull request to `main`, or on demand: install, run all tests, post to Jira, upload the HTML report. | Implemented |
 | Jenkins pipeline | `Jenkinsfile` | Same suite on the local Jenkins; checks GitHub every 5 minutes and runs weekdays at 9 AM; publishes JUnit and HTML results. | Implemented (laptop only) |
@@ -214,6 +215,6 @@ All Recommended.
 |---|---|
 | Now | Raise the Industries title as a Jira Bug; protect `main` and use pull requests with one reviewer; create a dedicated Jira automation account. |
 | Next | Upload `results.json` and the JUnit XML as a 90-day artifact; publish each report to a permanent link; `trace: 'retain-on-failure'`; a nightly scheduled run with failure alerts; a story-key input to run one story. |
-| Later | Page objects and separate test data files; Firefox, WebKit and a phone viewport; a staging environment with a `TEST_ENV` setting; Jenkins on a shared server or retired; a quality dashboard; move the Cypress examples out of this repository. |
+| Later | Page objects and separate test data files; Firefox, WebKit and a phone viewport; a staging environment (the tests already accept its address through `BASE_URL`); Jenkins on a shared server or retired; a quality dashboard; move the Cypress examples out of this repository. |
 
 Related documents: [Automation Execution Guide](execution-guide.md) · [Business Demonstration Guide](demo-guide.md)

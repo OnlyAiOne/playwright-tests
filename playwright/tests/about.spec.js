@@ -1,6 +1,8 @@
 const { test, expect } = require('@playwright/test');
 
-const ABOUT_URL = 'https://onlypps.com/about.html';
+const { BASE_URL } = require('../env');
+
+const ABOUT_URL = BASE_URL + 'about.html';
 
 const stats = [
   ['1000', 'Employees Managed'],

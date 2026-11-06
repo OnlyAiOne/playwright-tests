@@ -82,6 +82,7 @@ The job stops after 30 minutes. A full run normally takes a few minutes, of whic
 
 | Variable | Used by | Where it is set | Meaning |
 |---|---|---|---|
+| `BASE_URL` | `playwright/env.js` | Not set (default: production, `https://onlypps.com/`) | Site the tests run against; set it to test another environment |
 | `CI` | Playwright config | Set by GitHub Actions and the Jenkinsfile | `true` turns on 2 retries |
 | `CYPRESS_INSTALL_BINARY` | npm install | Workflow and Jenkinsfile: `0` | Skips the Cypress download |
 | `JIRA_BASE_URL` | Jira reporter | Workflow: `https://ccbchennai.atlassian.net` | Jira site |
@@ -97,6 +98,7 @@ The job stops after 30 minutes. A full run normally takes a few minutes, of whic
 | Setting | Value |
 |---|---|
 | Test folder | `playwright/tests` |
+| Base URL | `BASE_URL` from `playwright/env.js`: production `https://onlypps.com/` unless overridden |
 | Parallel | Yes, across and within files. The number of workers is not set, so Playwright uses half the CPU cores |
 | Retries | 2 in CI, 0 locally |
 | Screenshot | Only when a test fails |
@@ -105,7 +107,26 @@ The job stops after 30 minutes. A full run normally takes a few minutes, of whic
 | Output folder | `playwright/test-results/` |
 | Browser | Chromium (Desktop Chrome). Firefox and WebKit are written in but commented out |
 
-Each spec file sets a 60-second limit per test, because the live site can be slow. The site address `https://onlypps.com/` is written in each spec file; there is no `baseURL` or test environment setting.
+Each spec file sets a 60-second limit per test, because the live site can be slow.
+
+### Site address (base URL)
+
+The production address is defined once, in `playwright/env.js`:
+
+```javascript
+const PROD_BASE_URL = 'https://onlypps.com/';
+const BASE_URL = (process.env.BASE_URL || PROD_BASE_URL).replace(/\/*$/, '/');
+```
+
+`playwright.config.js` uses it as `baseURL`, and every spec imports it with `const { BASE_URL } = require('../env');` and builds page addresses as `BASE_URL + 'contact.php'`. Never write the site address in a test.
+
+To run the same tests against another site, set `BASE_URL` for that terminal only (PowerShell):
+
+```powershell
+$env:BASE_URL="https://staging.example.com/"; npm run pw:test
+```
+
+Close the terminal, or run `Remove-Item Env:BASE_URL`, to go back to production. CI does not set `BASE_URL`, so the pipeline always tests production.
 
 ## 5. Jira integration
 

@@ -1,7 +1,9 @@
 const path = require('path');
 const { test, expect } = require('@playwright/test');
 
-const CONTACT_URL = 'https://onlypps.com/contact.php';
+const { BASE_URL } = require('../env');
+
+const CONTACT_URL = BASE_URL + 'contact.php';
 
 const sampleData = {
   name: 'Test User',

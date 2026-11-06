@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'https://onlypps.com/';
+const { BASE_URL } = require('../env');
 
 const industries = [
   'IT & ITES',

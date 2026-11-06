@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-const BASE_URL = 'https://onlypps.com/';
+const { BASE_URL } = require('../env');
 
 test.describe('Only Peopleplus Solution - Home page', () => {
   // The site can be slow to finish loading all its images and scripts

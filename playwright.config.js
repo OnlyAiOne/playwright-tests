@@ -1,5 +1,6 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const { BASE_URL } = require('./playwright/env');
 
 module.exports = defineConfig({
   testDir: './playwright/tests',
@@ -13,6 +14,7 @@ module.exports = defineConfig({
   ],
   outputDir: 'playwright/test-results',
   use: {
+    baseURL: BASE_URL, // see playwright/env.js
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
