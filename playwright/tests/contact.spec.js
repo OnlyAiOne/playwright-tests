@@ -24,7 +24,7 @@ test.describe('Only Peopleplus Solution - Contact page', () => {
     await page.goto(CONTACT_URL, { waitUntil: 'domcontentloaded' });
   });
 
-  test('loads the contact page', async ({ page }) => {
+  test('OWA-31: loads the contact page', async ({ page }) => {
     await expect(page).toHaveTitle(/Contact/);
     await expect(
       page.getByRole('heading', { name: 'If You Have Any Query, Please Contact Us' })
@@ -32,7 +32,7 @@ test.describe('Only Peopleplus Solution - Contact page', () => {
     await expect(page.getByRole('button', { name: 'Send Message' })).toBeVisible();
   });
 
-  test('fills the contact form with sample data (not submitted)', async ({ page }) => {
+  test('OWA-31: fills the contact form with sample data (not submitted)', async ({ page }) => {
     const form = page.locator('#contactForm');
 
     await form.getByPlaceholder('Your Name').fill(sampleData.name);
@@ -53,7 +53,7 @@ test.describe('Only Peopleplus Solution - Contact page', () => {
     expect(await form.evaluate((f) => f.checkValidity())).toBe(true);
   });
 
-  test('marks the form invalid when required fields are empty', async ({ page }) => {
+  test('OWA-32: marks the form invalid when required fields are empty', async ({ page }) => {
     const form = page.locator('#contactForm');
 
     expect(await form.evaluate((f) => f.checkValidity())).toBe(false);
@@ -62,7 +62,7 @@ test.describe('Only Peopleplus Solution - Contact page', () => {
     }
   });
 
-  test('rejects an invalid email address', async ({ page }) => {
+  test('OWA-32: rejects an invalid email address', async ({ page }) => {
     const email = page.locator('#contactForm').getByPlaceholder('Your Email');
 
     await email.fill('not-an-email');
