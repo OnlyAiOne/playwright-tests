@@ -2,7 +2,11 @@
 
 End-to-end tests for [onlypps.com](https://onlypps.com/) using **Playwright**, alongside an existing **Cypress** practice suite.
 
-See [docs/architecture.md](docs/architecture.md) for how the automation works end to end, from Jira story to test result.
+Documentation:
+
+- [Automation Architecture Document](docs/architecture.md): objective, scope, architecture diagrams, components, integrations, result storage, security, limitations and roadmap
+- [Automation Execution Guide](docs/execution-guide.md): running tests locally and in CI, configuration, Jira integration, reports and failure investigation
+- [Business Demonstration Guide](docs/demo-guide.md): preparing and running the business demonstration
 
 ## Setup
 
@@ -30,7 +34,7 @@ playwright/fixtures/        Test data files
 cypress/                    Cypress tests
 .github/workflows/          GitHub Actions: runs Playwright tests on every push
 Jenkinsfile                 Jenkins pipeline for the same tests
-docs/architecture.md        End-to-end architecture diagram
+docs/                       Architecture document, execution guide, demonstration guide
 scripts/jira-report.js      Posts results to the Jira story named in each test
 ```
 
