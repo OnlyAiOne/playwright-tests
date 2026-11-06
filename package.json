@@ -178,7 +178,8 @@
     "pw:headed": "playwright test --headed",
     "pw:ui": "playwright test --ui",
     "pw:report": "playwright show-report playwright/report",
-    "pw:codegen": "playwright codegen"
+    "pw:codegen": "playwright codegen",
+    "jira:report": "node scripts/jira-report.js"
   },
   "author": "",
   "license": "ISC",

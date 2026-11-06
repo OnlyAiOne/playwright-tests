@@ -40,7 +40,7 @@ flowchart TB
 
   subgraph JIRA["7 · Jira integration · results go back to the story in layer 1"]
     direction LR
-    TRC["Traceability<br/>story key in each test"] --> CAP["Capture status<br/>per story"] --> UPD["Update story<br/>(partial: by hand)"]:::part --> SUMJ["Add summary<br/>(partial)"]:::part -.-> ATT["Attach evidence<br/>(planned)"]:::plan -.-> READ["Read story, run its tests<br/>(planned)"]:::plan
+    TRC["Traceability<br/>story key in each test"] --> CAP["Capture status<br/>per story"] --> UPD["Update story comment<br/>(built, needs Jira token)"]:::part --> SUMJ["Add summary<br/>and failure details"]:::part --> ATT["Attach failure screenshots<br/>(built, needs Jira token)"]:::part -.-> READ["Read story, run its tests<br/>(planned)"]:::plan
   end
 
   BUSINESS ==>|each scenario becomes a test| DEV
@@ -64,7 +64,7 @@ flowchart TB
 | 4 | CI/CD execution | Every push starts a clean run: install, run, collect, report. | GitHub Actions and Jenkins, retries and failure evidence | Environments: production only (partial) |
 | 5 | Application testing | A real Chrome browser uses the live site as a visitor would. | Navigation, business journeys, assertions | Login: not applicable on the public site |
 | 6 | Reporting and evidence | Each run leaves a summary, failure details, screenshots, an HTML report and logs. | Summary, failures, screenshots, HTML report, CI logs | Traces only on CI retries (partial) |
-| 7 | Jira integration | Results are matched to stories by the key in each test name. | Traceability, status per story key | Story update and summary posted by hand (partial); attaching evidence, reading a story and running its tests (planned) |
+| 7 | Jira integration | Results are matched to stories by the key in each test name, and the pipeline posts them to each story. | Traceability, status per story key, `scripts/jira-report.js` in GitHub Actions | Story comment and failure screenshots are built but run as a dry run until the Jira secrets are added (partial); reading a story and running only its tests (planned) |
 
 ## Notes
 

@@ -31,6 +31,17 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
 
+      # Posts results to each OWA story; runs as a dry run until the Jira secrets are added.
+      # Skipped for pull requests so only main-branch results reach Jira.
+      - name: Post results to Jira
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        run: node scripts/jira-report.js
+        env:
+          JIRA_BASE_URL: https://ccbchennai.atlassian.net
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
       - name: Upload HTML report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4

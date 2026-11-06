@@ -5,6 +5,7 @@ node_modules/
 playwright/report/
 playwright/test-results/
 playwright/junit/
+playwright/results.json
 playwright/.cache/
 
 # Cypress output

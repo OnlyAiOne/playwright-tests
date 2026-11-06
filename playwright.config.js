@@ -8,6 +8,7 @@ module.exports = defineConfig({
   reporter: [
     ['html', { outputFolder: 'playwright/report', open: 'never' }],
     ['junit', { outputFile: 'playwright/junit/results.xml' }], // read by Jenkins
+    ['json', { outputFile: 'playwright/results.json' }], // read by scripts/jira-report.js
     ['list'],
   ],
   outputDir: 'playwright/test-results',
