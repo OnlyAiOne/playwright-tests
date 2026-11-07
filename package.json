@@ -175,6 +175,8 @@
     "cypress:run": "cypress run",
     "test": "echo \"Error: no test specified\" && exit 1",
     "pw:test": "playwright test",
+    "pw:onlypps": "playwright test --project=onlypps",
+    "pw:uqa": "playwright test --project=ultimateqa",
     "pw:headed": "playwright test --headed",
     "pw:ui": "playwright test --ui",
     "pw:report": "playwright show-report playwright/report",

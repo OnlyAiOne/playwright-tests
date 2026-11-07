@@ -14,6 +14,7 @@ Check the key journeys of the live website [onlypps.com](https://onlypps.com/) a
 
 - 23 public pages of onlypps.com: home, contact, about, the Services page and its 14 service pages, Industries, and the four Resources pages (Blog, HR Guides, HR Compliance Checklist, FAQ).
 - 34 Playwright tests covering 8 Jira stories, `OWA-28` to `OWA-35`, under epic `OWA-27`.
+- A second suite for the ultimateqa.com automation practice pages: 36 tests covering 8 stories, `OWA-38` to `OWA-45`, under epic `OWA-37`, in `playwright/ultimateqa/` (Playwright project `ultimateqa`).
 - Running in Chromium on GitHub Actions (every push and pull request to `main`) and on a local Jenkins.
 - Posting results to the Jira stories.
 
@@ -137,14 +138,15 @@ Planned items (pull requests and code review, choosing which stories to run) are
 |---|---|---|---|
 | Test framework | `@playwright/test` 1.64.1 in `package.json` | Runs the tests in a real browser and checks the results. JavaScript on Node.js 20, chosen in place of Python and Pytest. | Implemented |
 | Test specs | `playwright/tests/` | 5 files, 34 tests: `first.spec.js` (8), `contact.spec.js` (4), `about.spec.js` (5), `services.spec.js` (5), `industries-resources.spec.js` (12). Each title starts with its Jira key. | Implemented |
+| UltimateQA suite | `playwright/ultimateqa/` | 8 files, 36 tests for the ultimateqa.com practice pages, with its own `env.js`, `pages/`, a POST-blocking safety net (`safety.js`) and `page-ready.js`, which waits for the site's delayed scripts before clicking. | Implemented |
 | Test data | Inside the spec files; `playwright/fixtures/sample-resume.txt` | Sample contact details, expected page lists, and the file the contact test uploads. | Implemented (inside code) |
-| Configuration | `playwright.config.js` | Test folder, base URL, parallel runs, retries (2 in CI, 0 locally), reporters, output folder, trace on first retry, screenshot on failure, Chromium project. | Implemented |
+| Configuration | `playwright.config.js` | Two projects (`onlypps`, `ultimateqa`), each with its own test folder and base URL; parallel runs, retries (2 in CI, 0 locally), reporters, output folder, trace on first retry, screenshot on failure, Chromium project. | Implemented |
 | Base URL | `playwright/env.js` | `PROD_BASE_URL` (`https://onlypps.com/`) defined once; `BASE_URL` overrides it from the environment. Used by the config and every spec. | Implemented |
 | Reporters | `playwright.config.js` | HTML report `playwright/report/`, JUnit `playwright/junit/results.xml`, JSON `playwright/results.json`, console list. | Implemented |
 | GitHub Actions workflow | `.github/workflows/playwright.yml` | On push or pull request to `main`, or on demand: install, run all tests, post to Jira, upload the HTML report. | Implemented |
 | Jenkins pipeline | `Jenkinsfile` | Same suite on the local Jenkins; checks GitHub every 5 minutes and runs weekdays at 9 AM; publishes JUnit and HTML results. | Implemented (laptop only) |
 | Jira reporter | `scripts/jira-report.js` | Reads `results.json`, groups tests by story key, updates one results comment per story and attaches failure screenshots. | Implemented |
-| Jira project | ccbchennai.atlassian.net, space OWA | Epic `OWA-27`, stories `OWA-28` to `OWA-35` with acceptance criteria in the description. | Implemented |
+| Jira project | ccbchennai.atlassian.net, space OWA | Epic `OWA-27`, stories `OWA-28` to `OWA-35`; epic `OWA-37`, stories `OWA-38` to `OWA-45`; acceptance criteria in each description. | Implemented |
 | Reusable locators | `playwright/pages/` | One file per page (home, contact, about, services, industries, resources) plus the shared site header and page basics. Test scripts use locators by name and contain no selectors. | Implemented |
 | Shared actions, helpers | none | Reusable steps such as "fill the contact form" or "reveal a fade-in section". | Recommended |
 

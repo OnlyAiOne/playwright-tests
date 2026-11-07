@@ -3,7 +3,8 @@
 //
 // 1. Finds the latest completed run of the GitHub Actions workflow on main that posts to
 //    Jira (a push or a manual run; pull requests never post).
-// 2. Finds the story keys in the test titles under playwright/tests/.
+// 2. Finds the story keys in the test titles under playwright/tests/ and
+//    playwright/ultimateqa/tests/.
 // 3. Reads each story's results comment (the one scripts/jira-report.js keeps up to date)
 //    and compares its commit and run link with that run.
 //
@@ -28,7 +29,11 @@ const jiraBase = (env.JIRA_BASE_URL || 'https://ccbchennai.atlassian.net').repla
 const projectKey = env.JIRA_PROJECT_KEY || 'OWA';
 const repo = env.GITHUB_REPO || 'OnlyAiOne/playwright-tests';
 const githubApi = (env.GITHUB_API_URL || 'https://api.github.com').replace(/\/+$/, '');
-const testsDir = path.join(__dirname, '..', 'playwright', 'tests');
+// One folder per suite (the onlypps and ultimateqa projects in playwright.config.js)
+const testsDirs = [
+  path.join(__dirname, '..', 'playwright', 'tests'),
+  path.join(__dirname, '..', 'playwright', 'ultimateqa', 'tests'),
+];
 
 // Must match COMMENT_MARKER in scripts/jira-report.js
 const COMMENT_MARKER = 'Posted by the OnlyPPS automation pipeline';
@@ -57,9 +62,11 @@ async function latestPostingRun() {
 function storyKeys() {
   const titleKey = new RegExp(`test\\(\\s*[\`'"](${projectKey}-\\d+):`, 'g');
   const keys = new Set();
-  for (const file of fs.readdirSync(testsDir).filter((f) => f.endsWith('.spec.js'))) {
-    const source = fs.readFileSync(path.join(testsDir, file), 'utf8');
-    for (const match of source.matchAll(titleKey)) keys.add(match[1]);
+  for (const testsDir of testsDirs) {
+    for (const file of fs.readdirSync(testsDir).filter((f) => f.endsWith('.spec.js'))) {
+      const source = fs.readFileSync(path.join(testsDir, file), 'utf8');
+      for (const match of source.matchAll(titleKey)) keys.add(match[1]);
+    }
   }
   return [...keys].sort((a, b) => Number(a.split('-')[1]) - Number(b.split('-')[1]));
 }

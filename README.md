@@ -1,6 +1,11 @@
 # Test Automation: Playwright + Cypress
 
-End-to-end tests for [onlypps.com](https://onlypps.com/) using **Playwright**, alongside an existing **Cypress** practice suite.
+End-to-end tests using **Playwright**, alongside an existing **Cypress** practice suite. There are two Playwright suites, one Playwright project each:
+
+| Project | Site | Tests | Jira epic |
+|---|---|---|---|
+| `onlypps` | [onlypps.com](https://onlypps.com/) | `playwright/tests/` | `OWA-27` |
+| `ultimateqa` | [ultimateqa.com/automation](https://ultimateqa.com/automation) practice pages | `playwright/ultimateqa/tests/` | `OWA-37` |
 
 Documentation:
 
@@ -19,7 +24,9 @@ npx playwright install chromium
 
 | Command | What it does |
 |---|---|
-| `npm run pw:test` | Run all tests (no visible browser) |
+| `npm run pw:test` | Run all tests, both suites (no visible browser) |
+| `npm run pw:onlypps` | Run only the onlypps.com suite |
+| `npm run pw:uqa` | Run only the UltimateQA suite |
 | `npm run pw:headed` | Run with the browser visible |
 | `npm run pw:ui` | Open the interactive test runner |
 | `npm run pw:report` | Open the last HTML report |
@@ -28,9 +35,16 @@ npx playwright install chromium
 ## Project layout
 
 ```
-playwright.config.js        Playwright settings
-playwright/tests/           Test specs (home, contact, about, services, industries and resources)
+playwright.config.js        Playwright settings (projects: onlypps, ultimateqa)
+playwright/tests/           onlypps.com specs (home, contact, about, services, industries and resources)
+playwright/pages/           onlypps.com locators, one file per page
 playwright/fixtures/        Test data files
+playwright/ultimateqa/      UltimateQA suite, self-contained:
+  env.js                      site addresses (UQA_BASE_URL)
+  pages/                      locators, one file per practice page
+  tests/                      specs, one per practice page
+  safety.js                   blocks every POST so no form is ever sent
+  page-ready.js               opens a page and waits for its delayed scripts
 cypress/                    Cypress tests
 .github/workflows/          GitHub Actions: runs Playwright tests on every push
 Jenkinsfile                 Jenkins pipeline for the same tests
@@ -61,4 +75,5 @@ To preview the comments locally after a test run: `npm run jira:report` (dry run
 ## Notes
 
 - The contact form tests fill the form with sample data but **never submit it**, so no real enquiries are sent.
+- The UltimateQA suite blocks every POST to ultimateqa.com, never answers CAPTCHAs and never signs in. Its sign-in tests are tagged `@external` and can be skipped with `--grep-invert @external`.
 - On GitHub, each workflow run uploads the HTML report as a downloadable `playwright-report` artifact.

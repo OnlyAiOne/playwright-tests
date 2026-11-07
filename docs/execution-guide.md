@@ -34,7 +34,9 @@ $env:CYPRESS_INSTALL_BINARY=0
 
 | Command | What it does |
 |---|---|
-| `npm run pw:test` | Run all 34 tests, browser hidden |
+| `npm run pw:test` | Run both suites, browser hidden |
+| `npm run pw:onlypps` | Run only the onlypps.com suite (`playwright/tests/`) |
+| `npm run pw:uqa` | Run only the UltimateQA suite (`playwright/ultimateqa/tests/`, 36 tests) |
 | `npm run pw:headed` | Run all tests with the browser visible |
 | `npm run pw:ui` | Open Playwright's interactive runner (pick tests, watch, re-run) |
 | `npm run pw:report` | Open the HTML report of the last local run |
@@ -48,6 +50,8 @@ Useful variations:
 |---|---|
 | One story's tests | `npx playwright test -g "OWA-31"` |
 | One file | `npx playwright test playwright/tests/contact.spec.js` |
+| One suite | `npx playwright test --project=ultimateqa` |
+| Skip the third-party sign-in page | `npx playwright test --grep-invert @external` |
 | One story, browser visible | `npx playwright test -g "OWA-31" --headed` |
 | Step through a test | `npx playwright test -g "OWA-31" --debug` |
 | List tests without running | `npx playwright test --list` |
@@ -84,6 +88,7 @@ The job stops after 30 minutes. A full run normally takes a few minutes, of whic
 | Variable | Used by | Where it is set | Meaning |
 |---|---|---|---|
 | `BASE_URL` | `playwright/env.js` | Not set (default: production, `https://onlypps.com/`) | Site the tests run against; set it to test another environment |
+| `UQA_BASE_URL` | `playwright/ultimateqa/env.js` | Not set (default: `https://ultimateqa.com/`) | Site the UltimateQA suite runs against |
 | `CI` | Playwright config | Set by GitHub Actions and the Jenkinsfile | `true` turns on 2 retries |
 | `CYPRESS_INSTALL_BINARY` | npm install | Workflow and Jenkinsfile: `0` | Skips the Cypress download |
 | `JIRA_BASE_URL` | Jira reporter | Workflow: `https://ccbchennai.atlassian.net` | Jira site |
@@ -98,8 +103,7 @@ The job stops after 30 minutes. A full run normally takes a few minutes, of whic
 
 | Setting | Value |
 |---|---|
-| Test folder | `playwright/tests` |
-| Base URL | `BASE_URL` from `playwright/env.js`: production `https://onlypps.com/` unless overridden |
+| Projects | `onlypps`: folder `playwright/tests`, base URL `BASE_URL` from `playwright/env.js` (production `https://onlypps.com/` unless overridden). `ultimateqa`: folder `playwright/ultimateqa/tests`, base URL `UQA_BASE_URL` from `playwright/ultimateqa/env.js` |
 | Parallel | Yes, across and within files. The number of workers is not set, so Playwright uses half the CPU cores |
 | Retries | 2 in CI, 0 locally |
 | Screenshot | Only when a test fails |
@@ -128,6 +132,14 @@ $env:BASE_URL="https://staging.example.com/"; npm run pw:test
 ```
 
 Close the terminal, or run `Remove-Item Env:BASE_URL`, to go back to production. CI does not set `BASE_URL`, so the pipeline always tests production.
+
+### UltimateQA suite
+
+The UltimateQA suite under `playwright/ultimateqa/` covers the practice pages linked from https://ultimateqa.com/automation: 8 spec files, 36 tests, stories `OWA-38` to `OWA-45` under epic `OWA-37`. It follows the same rules as the onlypps suite (locators in `pages/`, notes header in each spec, story key at the start of each title), with three additions:
+
+- **`safety.js`** blocks every POST to ultimateqa.com. The pages hold live contact and login forms, so nothing is ever sent. Specs that touch a form call `blockFormPosts(page)` in `beforeEach`.
+- **`page-ready.js`** opens a page with `openPage(page, url)`. The site holds back about 30 scripts until the visitor first moves the mouse, and swallows clicks until they load. `openPage` moves the mouse once and waits for them, so clicks on radio buttons, checkboxes and buttons work every time. Use it for any page the test clicks on.
+- The courses sign-in page (`login.spec.js`) is on a separate host, `courses.ultimateqa.com`, and is tagged `@external`. It only checks the form and never signs in.
 
 ## 5. Jira integration
 
