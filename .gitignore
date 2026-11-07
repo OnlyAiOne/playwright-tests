@@ -16,6 +16,8 @@ cypress/videos/
 # Python
 __pycache__/
 .pytest_cache/
+.venv/
+api-tests/reports/
 
 # Editor / OS
 .idea/
