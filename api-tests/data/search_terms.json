@@ -1,0 +1,5 @@
+{
+  "_comment": "Search terms for API 5. Each term must appear in the name or category of every product returned.",
+  "match": ["top", "tshirt", "jean", "dress", "saree"],
+  "no_match": ["zzqx-no-such-product"]
+}
