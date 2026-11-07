@@ -13,6 +13,9 @@
 //             a second guard. No real credentials are used. Do not remove either.
 // Notes:      Tagged @external: the courses site is a separate third-party host and may
 //             block automated browsers, so CI can skip it with --grep-invert @external.
+//             From some networks, GitHub's CI servers among them, the site shows a
+//             Cloudflare bot check ("Just a moment...") instead of the page. The tests
+//             then skip themselves (Jira shows NOT RUN); they never try to get past it.
 // ---------------------------------------------------------------------------
 
 const { test, expect } = require('@playwright/test');
@@ -33,6 +36,9 @@ test.describe('UltimateQA - Courses sign-in page', { tag: '@external' }, () => {
   test.beforeEach(async ({ page }) => {
     await blockFormPosts(page);
     await page.goto(COURSES_URL + loginPage.path, { waitUntil: 'domcontentloaded' });
+
+    const botCheck = /^Just a moment/.test(await page.title());
+    test.skip(botCheck, 'courses.ultimateqa.com showed a Cloudflare bot check instead of the sign-in page');
   });
 
   test('OWA-45: loads the sign-in page', async ({ page }) => {

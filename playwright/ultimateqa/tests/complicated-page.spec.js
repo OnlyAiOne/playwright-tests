@@ -20,7 +20,6 @@ const { test, expect } = require('@playwright/test');
 const { BASE_URL } = require('../env');
 const { complicatedPage } = require('../pages');
 const { blockFormPosts } = require('../safety');
-const { openPage } = require('../page-ready');
 
 const sampleData = {
   name: 'Test User',
@@ -34,7 +33,8 @@ test.describe('UltimateQA - Complicated page', () => {
 
   test.beforeEach(async ({ page }) => {
     await blockFormPosts(page);
-    await openPage(page, BASE_URL + complicatedPage.path);
+    // Nothing here is clicked, so the page's delayed scripts are not needed (see ../page-ready.js)
+    await page.goto(BASE_URL + complicatedPage.path, { waitUntil: 'domcontentloaded' });
   });
 
   test('OWA-42: loads with its three sections', async ({ page }) => {
