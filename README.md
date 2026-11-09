@@ -7,6 +7,13 @@ End-to-end tests using **Playwright**, alongside an existing **Cypress** practic
 | `onlypps` | [onlypps.com](https://onlypps.com/) | `playwright/tests/` | `OWA-27` |
 | `ultimateqa` | [ultimateqa.com/automation](https://ultimateqa.com/automation) practice pages | `playwright/ultimateqa/tests/` | `OWA-37` |
 
+Two Python suites cover [automationexercise.com](https://automationexercise.com), each with its own README and setup:
+
+| Suite | Stack | Folder |
+|---|---|---|
+| API | Pytest + Requests | [api-tests/](api-tests/README.md) |
+| Web + API | Robot Framework (SeleniumLibrary + RequestsLibrary) | [robot-tests/](robot-tests/README.md) |
+
 Documentation:
 
 - [Automation Architecture Document](docs/architecture.md): objective, scope, architecture diagrams, components, integrations, result storage, security, limitations and roadmap

@@ -1,0 +1,57 @@
+name: Robot Framework Tests
+
+on:
+  push:
+    branches: [main]
+    paths: ["robot-tests/**", ".github/workflows/robot-tests.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["robot-tests/**", ".github/workflows/robot-tests.yml"]
+  schedule:
+    - cron: "45 1 * * *"  # daily prod health check, 07:15 IST
+  workflow_dispatch:
+    inputs:
+      include:
+        description: "Robot tag expression to include, e.g. smoke, api, webANDsmoke"
+        required: false
+        default: ""
+
+jobs:
+  robot-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: robot-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: robot-tests/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ubuntu-latest ships with Google Chrome; Selenium Manager fetches the matching driver.
+      - name: Run Robot Framework tests
+        run: >
+          pabot --processes 4 --outputdir reports --xunit junit.xml
+          ${{ inputs.include && format('--include "{0}"', inputs.include) || '' }}
+          tests
+
+      - name: Re-run failures once (shared prod site)
+        if: failure()
+        run: >
+          robot --outputdir reports/rerun --rerunfailed reports/output.xml tests || true;
+          rebot --xunit junit.xml --outputdir reports --output output.xml --merge reports/output.xml reports/rerun/output.xml
+
+      - name: Upload reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-test-reports
+          path: robot-tests/reports/
+          retention-days: 14
