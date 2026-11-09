@@ -18,6 +18,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 api-tests/reports/
+robot-tests/reports/
+robot-tests/.pabotsuitenames
 
 # Editor / OS
 .idea/
