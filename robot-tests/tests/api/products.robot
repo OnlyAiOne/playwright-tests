@@ -46,6 +46,12 @@ API 4: PUT To Brands List Is Not Supported
     ${response}=    PUT On Session    api    /brandsList
     Response Should Be    ${response}    405    ${NOT_SUPPORTED}
 
+Brands List Rejects Other Write Methods
+    [Tags]    negative
+    [Template]    Method Should Not Be Supported
+    POST      /brandsList
+    DELETE    /brandsList
+
 Products List Rejects Other Write Methods
     [Tags]    negative
     [Template]    Method Should Not Be Supported
