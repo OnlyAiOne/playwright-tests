@@ -1,0 +1,7 @@
+reports/
+.pabotsuitenames
+__pycache__/
+.venv/
+log.html
+output.xml
+report.html
